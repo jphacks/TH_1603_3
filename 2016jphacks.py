@@ -1,7 +1,7 @@
 #coding: utf-8
-import urllib,json,random,string,requests,numpy,cv2,subprocess,urllib,urllib2,re
+import urllib,json,random,string,requests,numpy,cv2,subprocess,urllib,urllib2,re,feedparser
 from datetime import datetime
-import feedparser
+from goolabs import GoolabsAPI
 
 def jtalk2(t):
     open_jtalk=['open_jtalk']
@@ -48,9 +48,9 @@ def say_who():
     text = 'あなたは誰ですか？'
     jtalk(text)
 
-def say_hi(name):
+def say_hi(name, index_number):
     text = name+'さんですね？！こんにちは！！今日のニュースをお届けします。'
-    text += descs[6].encode('utf_8');
+    text += descs[index_number].encode('utf_8');
     jtalk(text)
 
 def say_weather(isMorning,  text):
@@ -104,11 +104,18 @@ def checkface(image_path):
                                 print 'You must be '+name+" . "
                                 print 'Hello!!' + name + "!!!"
                                 say_name = '';
-                                if(name == 'yano'):  say_name = '矢野'
-                                elif(name == 'kudo'): say_name = '工藤'
-                                elif(name == 'nagai'): say_name = '永井'
+                                number = 11
+                                if(name == 'yano'):
+                                    say_name = '矢野'
+                                    number = 5
+                                elif(name == 'kudo'):
+                                    say_name = '工藤'
+                                    number = 8
+                                elif(name == 'nagai'):
+                                    say_name = '永井'
+                                    number = 4
                                 say_datetime(True)
-                                say_hi(say_name)
+                                say_hi(say_name, number)
                                 cv2.waitKey(30000)
                         else:
                                 print 'who are you ?'
@@ -127,6 +134,40 @@ def send():
 	image_path = url+'img/'+filename
 	checkface(image_path)
 
+def keitaiso(title,news):
+    url = "https://labs.goo.ne.jp/api/keyword"
+    params = {"app_id":"8ec55093d77309ffc18156912eccbd98fec3ecb18c0fbf99031ae6a1da2fec08","title":title.encode('utf_8'), "body" : news.encode('utf_8') ,"max_num":3 }
+    params = urllib.urlencode(params)
+
+    req = urllib2.Request(url)
+    # ヘッダ設定
+    req.add_header('test', 'application/x-www-form-urlencoded')
+    # パラメータ設定
+    req.add_data(params)
+    
+    
+    res = urllib2.urlopen(req)
+    r = json.loads(res.read())
+    print "--------------------"
+    point = 0
+    i = 0
+    for word in r['keywords']:
+        print word.keys()[0]
+	point +=judge(word.keys()[0])
+	i = i + 1
+    wordpoints.append(point/i)
+
+def judge(word):
+    app_id = "8ec55093d77309ffc18156912eccbd98fec3ecb18c0fbf99031ae6a1da2fec08"
+    api = GoolabsAPI(app_id)
+
+    # See sample response below.
+    ret = api.similarity(query_pair=[word, favoriteword])
+
+    print ret['score']
+    return ret['score']
+
+
 
 #weather
 baseurl = "https://query.yahooapis.com/v1/public/yql?"
@@ -139,14 +180,17 @@ weather_data = json.loads(result)
 
 RSS_URL = "http://feed.rssad.jp/rss/news24/index.rdf"
 news_dic = feedparser.parse(RSS_URL)
+favoriteword = "りんご"
+wordpoints = []
 descs = []
 for entry in news_dic.entries:
-        desc = entry.description
-        desc = desc[3:]
-        desc = desc[:len(desc)-4]
-        descs.append( desc )
-        #print desc
+       desc = entry.description
+       desc = desc[3:]
+       desc = desc[:len(desc)-4]
+       descs.append( desc )
 
+print descs
+       
 cascade_path = './haarcascade_frontalface_alt.xml'
 cap = cv2.VideoCapture(0)
 filename="face.jpg"
