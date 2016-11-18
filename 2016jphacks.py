@@ -119,7 +119,7 @@ def checkface(image_path):
         print "error"
 
 def send():
-    url = 'https://version1.xyz/emmer/'
+    url = 'http://version1.xyz/emmer/'
     filename = ''.join([random.choice(string.ascii_letters + string.digits) for i in range(10)]) + '.jpg'
     image = open('face.jpg')
     files = {'file':(filename,image,'image/jpeg')}
