@@ -64,7 +64,7 @@ def say_hi(user):
 def say_datetime(isMorning):
     d = datetime.now()
     text = '%s月%s日、%s時%s分、' % (d.month, d.day, d.hour, d.minute)
-    say_weather(isMorning,text,news)
+    say_weather(isMorning,text)
 
 def say_weather(isMorning,text):
     if(isMorning):
