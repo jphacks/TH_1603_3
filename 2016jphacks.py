@@ -7,7 +7,7 @@ users = {
     'yano':{'name':'矢野','address':'函館本線','topic_number':5},
     'kudo':{'name':'工藤','address':'大阪線','topic_number':8},
     'nagai':{'name':'永井','address':'山田線','topic_number':4},
-    'hyodo':{'name':'兵藤','address':'山手線','topic_number':5}
+    'hyodo':{'name':'兵藤','address':'山手線','topic_number':6}
 }
 
 def jtalk2(t):
@@ -60,7 +60,10 @@ def say_hi(user):
     text += descs[user['topic_number']].encode('utf_8')
     if(requests.get('https://rti-giken.jp/fhc/api/train_tetsudo/delay.json').text.find(user['address'].decode('utf-8')) > -1):
         text += 'また、'+user['address']+'に遅れが出ています。早めに家を出ましょう。以上です。'
-    jtalk(text)
+    else:
+        text += '以上です。'
+    return text
+    #jtalk(text)
 
 def say_weather(isMorning,  text):
     if(isMorning):
@@ -109,8 +112,7 @@ def checkface(image_path):
             name=result['face'][0]['candidate'][0]['person_name']
             print 'You must be '+name+" . "
             print 'Hello!!' + name + "!!!"
-            say_datetime(True)
-            say_hi(users[name])
+            say_datetime(True,say_hi(users[name]))
             cv2.waitKey(30000)
         else:
             print 'who are you ?'
