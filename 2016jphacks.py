@@ -36,8 +36,8 @@ def say_datetime(isMorning):
     text = '%s月%s日、%s時%s分、' % (d.month, d.day, d.hour, d.minute)
     say_weather(isMorning,text)
 
-def say_news():
-    text = 'プロ野球・日本シリーズの第６戦が２９日、マツダスタジアムで行われ、日本ハムが１０－４で広島を破り、１０年ぶりの日本一に輝いた。'
+def say_news(index_number):
+    text = descs[index_number].encode('utf_8');
     jtalk(text)
 
 def say_hello():
@@ -48,9 +48,8 @@ def say_who():
     text = 'あなたは誰ですか？'
     jtalk(text)
 
-def say_hi(name, index_number):
-    text = name+'さんですね？！こんにちは！！今日のニュースをお届けします。'
-    text += descs[index_number].encode('utf_8');
+def say_hi(name):
+    text = 'おはようございます！'+name+'さん！！今日のニュースをお届けします。'
     jtalk(text)
 
 def say_weather(isMorning,  text):
@@ -92,13 +91,14 @@ def checkface(image_path):
 		( "group_name", "jphacks"),
 		( "url", image_path)
 	]
+	print image_path
 
 	url += "?{0}".format( urllib.urlencode( param ) )
 
 	result = None
 	try :
                         result = json.loads(urllib.urlopen( url ).read())
-	#	print result
+                        print result
                         if  len(result['face']) > 0:
                                 name=result['face'][0]['candidate'][0]['person_name']
                                 print 'You must be '+name+" . "
@@ -114,8 +114,11 @@ def checkface(image_path):
                                 elif(name == 'nagai'):
                                     say_name = '永井'
                                     number = 4
+                                say_hi(say_name)
+                                cv2.waitKey(5000)
                                 say_datetime(True)
-                                say_hi(say_name, number)
+                                cv2.waitKey(5000)
+                                say_news(number)
                                 cv2.waitKey(30000)
                         else:
                                 print 'who are you ?'
@@ -125,7 +128,8 @@ def checkface(image_path):
 		print "error"
 
 def send():
-	url = 'http://cu76nat-aj3-app000.c4sa.net/'
+	#url = 'http://cu76nat-aj3-app000.c4sa.net/'
+	url = 'http://version1.xyz/emmer/'
 	filename = ''.join([random.choice(string.ascii_letters + string.digits) for i in range(10)]) + '.jpg'
 	image = open('face.jpg')
 	files = {'file':(filename,image,'image/jpeg')}
