@@ -117,8 +117,8 @@ def checkface(image_path):
             name=result['face'][0]['candidate'][0]['person_name']
             print 'You must be '+name+" . "
             print 'Hello!!' + name + "!!!"
-            say_hi(users[name])
             say_datetime(True)
+            say_hi(users[name])
             cv2.waitKey(30000)
         else:
             print 'who are you ?'
