@@ -56,10 +56,9 @@ def say_who():
 
 def say_hi(user):
     text = user['name']+'さんですね？！こんにちは！！今日のニュースをお届けします。'
-    text += descs[user.topic_number].encode('utf_8')
+    text += descs[user['topic_number']].encode('utf_8')
     if(requests.get('https://rti-giken.jp/fhc/api/train_tetsudo/delay.json').text.find(user.address.decode('utf-8')) > -1):
-        text += user.address+'に遅れが出ています。早めに家を出ましょう'
-        print 'okureteru!'
+        text += 'また、'+user.address+'に遅れが出ています。早めに家を出ましょう。以上です。'
     jtalk(text)
 
 def say_weather(isMorning,  text):
