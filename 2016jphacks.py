@@ -200,7 +200,7 @@ while True:
             if rect[2] < r[2]:
                 rect = r
         x,y,w,h = rect[0],rect[1],rect[2],rect[3]
-        cv2.imwrite(filename,image)
+        cv2.imwrite(filename,image[y:y+h, x:x+w])
         send()
     k = cv2.waitKey(200)
     if k == 27:cap.release(); break;
