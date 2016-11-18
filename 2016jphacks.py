@@ -38,10 +38,10 @@ def jtalk(t):
     aplay = ['aplay','-q','open_jtalk.wav']
     wr = subprocess.Popen(aplay)
 
-def say_datetime(isMorning):
+def say_datetime(isMorning,news):
     d = datetime.now()
     text = '%s月%s日、%s時%s分、' % (d.month, d.day, d.hour, d.minute)
-    say_weather(isMorning,text)
+    say_weather(isMorning,text,news)
 
 def say_news(index_number):
     text = descs[index_number].encode('utf_8');
@@ -65,33 +65,33 @@ def say_hi(user):
     return text
     #jtalk(text)
 
-def say_weather(isMorning,  text):
+def say_weather(isMorning,  text,news):
     if(isMorning):
         if(weather_data['query']['results']['channel']['item']['forecast'][0]['text'].find('Partly Cloudy') > -1):
-            jtalk2(text+'今日の天気は晴れ時々曇りです。')
+            jtalk2(text+'今日の天気は晴れ時々曇りです。'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][0]['text'].find('Mostly Cloudy') > -1):
-            jtalk2(text+'今日の天気は曇りのち晴れです。')
+            jtalk2(text+'今日の天気は曇りのち晴れです。'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][0]['text'].find('Mostly Sunny') > -1):
-            jtalk2(text+'今日は晴れのち曇りです！')
+            jtalk2(text+'今日は晴れのち曇りです！'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][0]['text'].find('Sunny') > -1):
-            jtalk2(text+'今日は晴れですよ！')
+            jtalk2(text+'今日は晴れですよ！'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][0]['text'].find('Scattered Showers') > -1):
-            jtalk2(text+'今日は雨が少し降ります。傘を持って行きましょう！')
+            jtalk2(text+'今日は雨が少し降ります。傘を持って行きましょう！'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][0]['text'].find('Heary rain') > -1):
-            jtalk2(text+'今日はたくさん雨が降ります。傘を持って行きましょう！気をつけて行ってらっしゃいませ。')
+            jtalk2(text+'今日はたくさん雨が降ります。傘を持って行きましょう！気をつけて行ってらっしゃいませ。'+news)
     else:
         if(weather_data['query']['results']['channel']['item']['forecast'][1]['text'].find('Partly Cloudy') > -1):
-            jtalk2(text+'明日の天気は晴れ時々曇りです。')
+            jtalk2(text+'明日の天気は晴れ時々曇りです。'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][1]['text'].find('Mostly Cloudy') > -1):
-            jtalk2(text+'明日の天気は曇りのち晴れです。')
+            jtalk2(text+'明日の天気は曇りのち晴れです。'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][1]['text'].find('Mostly Sunny') > -1):
-            jtalk2(text+'明日は晴れのち曇りです！')
+            jtalk2(text+'明日は晴れのち曇りです！'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][1]['text'].find('Sunny') > -1):
-            jtalk2(text+'明日は晴れですよ！')
+            jtalk2(text+'明日は晴れですよ！'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][1]['text'].find('Scattered Showers') > -1):
-            jtalk2(text+'明日は雨が少し降ります。傘を持って行きましょう！')
+            jtalk2(text+'明日は雨が少し降ります。傘を持って行きましょう！'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][1]['text'].find('Hearay rain') > -1):
-            jtalk2(text+'明日はたくさん雨が降ります。傘を持って行きましょう！気をつけて行ってらっしゃいませ。')
+            jtalk2(text+'明日はたくさん雨が降ります。傘を持って行きましょう！気をつけて行ってらっしゃいませ。'+news)
 
 def checkface(image_path):  
     url = "http://apius.faceplusplus.com/recognition/identify"
@@ -112,7 +112,8 @@ def checkface(image_path):
             name=result['face'][0]['candidate'][0]['person_name']
             print 'You must be '+name+" . "
             print 'Hello!!' + name + "!!!"
-            say_datetime(True,say_hi(users[name]))
+            text = say_hi(users[name]);
+            say_datetime(True,text)
             cv2.waitKey(30000)
         else:
             print 'who are you ?'
