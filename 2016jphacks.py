@@ -3,6 +3,12 @@ import urllib,json,random,string,requests,numpy,cv2,subprocess,urllib,urllib2,re
 from datetime import datetime
 from goolabs import GoolabsAPI
 
+users = {
+    'yano':{'name':'矢野','address':'函館本線','topic_number':5},
+    'kudo':{'name':'工藤','address':'大阪線','topic_number':8},
+    'nagai':{'name':'永井','address':'山田線','topic_number':4}
+}
+
 def jtalk2(t):
     open_jtalk=['open_jtalk']
     mech=['-x','/var/lib/mecab/dic/open-jtalk/naist-jdic']
@@ -48,8 +54,12 @@ def say_who():
     text = 'あなたは誰ですか？'
     jtalk(text)
 
-def say_hi(name):
-    text = 'おはようございます！'+name+'さん！！今日のニュースをお届けします。'
+def say_hi(user):
+    text = user['name']+'さんですね？！こんにちは！！今日のニュースをお届けします。'
+    text += descs[index_number].encode('utf_8')
+    if(requests.get('https://rti-giken.jp/fhc/api/train_tetsudo/delay.json').text.find(user.address.encode('utf-8')) > -1):
+        text += user.address.encode('utf-8')
+        print 'okureteru!'
     jtalk(text)
 
 def say_weather(isMorning,  text):
@@ -80,76 +90,53 @@ def say_weather(isMorning,  text):
         if(weather_data['query']['results']['channel']['item']['forecast'][1]['text'].find('Hearay rain') > -1):
             jtalk2(text+'明日はたくさん雨が降ります。傘を持って行きましょう！気をつけて行ってらっしゃいませ。')
 
-
-    
-    
 def checkface(image_path):  
-	url = "http://apius.faceplusplus.com/recognition/identify"
-	param = [
-		( "api_key", "db262d0ebc7bdee61600c99cdd836b6e"),
-		( "api_secret", "gjL4nZD2DdDd0_FrnUDHg0Sij2nJGlgW"),
-		( "group_name", "jphacks"),
-		( "url", image_path)
-	]
-	print image_path
+    url = "http://apius.faceplusplus.com/recognition/identify"
+    param = [
+        ( "api_key", "db262d0ebc7bdee61600c99cdd836b6e"),
+        ( "api_secret", "gjL4nZD2DdDd0_FrnUDHg0Sij2nJGlgW"),
+        ( "group_name", "jphacks"),
+        ( "url", image_path)
+    ]
 
-	url += "?{0}".format( urllib.urlencode( param ) )
+    url += "?{0}".format( urllib.urlencode( param ) )
 
-	result = None
-	try :
-                        result = json.loads(urllib.urlopen( url ).read())
-                        print result
-                        if  len(result['face']) > 0:
-                                name=result['face'][0]['candidate'][0]['person_name']
-                                print 'You must be '+name+" . "
-                                print 'Hello!!' + name + "!!!"
-                                say_name = '';
-                                number = 11
-                                if(name == 'yano'):
-                                    say_name = '矢野'
-                                    number = 5
-                                elif(name == 'kudo'):
-                                    say_name = '工藤'
-                                    number = 8
-                                elif(name == 'nagai'):
-                                    say_name = '永井'
-                                    number = 4
-                                say_hi(say_name)
-                                cv2.waitKey(5000)
-                                say_datetime(True)
-                                cv2.waitKey(5000)
-                                say_news(number)
-                                cv2.waitKey(30000)
-                        else:
-                                print 'who are you ?'
-                                say_who()
-                
-	except ValueError :
-		print "error"
+    result = None
+    try :
+        result = json.loads(urllib.urlopen( url ).read())
+#    print result
+        if  len(result['face']) > 0:
+            name=result['face'][0]['candidate'][0]['person_name']
+            print 'You must be '+name+" . "
+            print 'Hello!!' + name + "!!!"
+            say_datetime(True)
+            say_hi(users[name])
+            cv2.waitKey(30000)
+        else:
+            print 'who are you ?'
+            say_who()
+    except ValueError :
+        print "error"
 
 def send():
-	#url = 'http://cu76nat-aj3-app000.c4sa.net/'
-	url = 'http://version1.xyz/emmer/'
-	filename = ''.join([random.choice(string.ascii_letters + string.digits) for i in range(10)]) + '.jpg'
-	image = open('face.jpg')
-	files = {'file':(filename,image,'image/jpeg')}
-	data = {}
-	r=requests.post(url+'images/add',files=files,data=data)
-	image_path = url+'img/'+filename
-	checkface(image_path)
+    url = 'https://version1.xyz/emmer/'
+    filename = ''.join([random.choice(string.ascii_letters + string.digits) for i in range(10)]) + '.jpg'
+    image = open('face.jpg')
+    files = {'file':(filename,image,'image/jpeg')}
+    data = {}
+    r=requests.post(url+'images/add',files=files,data=data)
+    image_path = url+'img/'+filename
+    checkface(image_path)
 
 def keitaiso(title,news):
     url = "https://labs.goo.ne.jp/api/keyword"
-    params = {"app_id":"8ec55093d77309ffc18156912eccbd98fec3ecb18c0fbf99031ae6a1da2fec08","title":title.encode('utf_8'), "body" : news.encode('utf_8') ,"max_num":3 }
+    params = {"app_id":"39bc88fcf7da5a2e42e311dbf872353f8a23960f7d4f021b20fefc7504ec76c6","title":title.encode('utf_8'), "body" : news.encode('utf_8') ,"max_num":3 }
     params = urllib.urlencode(params)
-
     req = urllib2.Request(url)
     # ヘッダ設定
     req.add_header('test', 'application/x-www-form-urlencoded')
     # パラメータ設定
     req.add_data(params)
-    
-    
     res = urllib2.urlopen(req)
     r = json.loads(res.read())
     print "--------------------"
@@ -157,21 +144,17 @@ def keitaiso(title,news):
     i = 0
     for word in r['keywords']:
         print word.keys()[0]
-	point +=judge(word.keys()[0])
-	i = i + 1
+    point +=judge(word.keys()[0])
+    i = i + 1
     wordpoints.append(point/i)
 
 def judge(word):
-    app_id = "8ec55093d77309ffc18156912eccbd98fec3ecb18c0fbf99031ae6a1da2fec08"
+    app_id = "39bc88fcf7da5a2e42e311dbf872353f8a23960f7d4f021b20fefc7504ec76c6"
     api = GoolabsAPI(app_id)
-
     # See sample response below.
     ret = api.similarity(query_pair=[word, favoriteword])
-
     print ret['score']
     return ret['score']
-
-
 
 #weather
 baseurl = "https://query.yahooapis.com/v1/public/yql?"
@@ -188,10 +171,10 @@ favoriteword = "りんご"
 wordpoints = []
 descs = []
 for entry in news_dic.entries:
-       desc = entry.description
-       desc = desc[3:]
-       desc = desc[:len(desc)-4]
-       descs.append( desc )
+    desc = entry.description
+    desc = desc[3:]
+    desc = desc[:len(desc)-4]
+    descs.append( desc )
 
 print descs
        
@@ -201,24 +184,24 @@ filename="face.jpg"
 face_flag = False
 
 while True:
-        ret,frame = cap.read()
-        image = frame
-        cascade = cv2.CascadeClassifier(cascade_path)
-        facerect = cascade.detectMultiScale(image, scaleFactor=1.1,minNeighbors=1,minSize=(1,1))
-        if len(facerect) <= 0:
-                face_flag = False
-                print("Anyone disappeared")
-                #say_datetime()
+    ret,frame = cap.read()
+    image = frame
+    cascade = cv2.CascadeClassifier(cascade_path)
+    facerect = cascade.detectMultiScale(image, scaleFactor=1.1,minNeighbors=1,minSize=(1,1))
+    if len(facerect) <= 0:
+        face_flag = False
+        print("Anyone disappeared")
+        #say_datetime()
 
-        if len(facerect) > 0 and face_flag == False:
-                face_flag = True
-                print("hello! you are ...")
-                rect=facerect[0]
-                for r in facerect:
-                        if rect[2] < r[2]:
-                                rect = r
-                x,y,w,h = rect[0],rect[1],rect[2],rect[3]
-                cv2.imwrite(filename,image)
-                send()
-        k = cv2.waitKey(200)
-        if k == 27:cap.release(); break;
+    if len(facerect) > 0 and face_flag == False:
+        face_flag = True
+        print("hello! you are ...")
+        rect=facerect[0]
+        for r in facerect:
+            if rect[2] < r[2]:
+                rect = r
+        x,y,w,h = rect[0],rect[1],rect[2],rect[3]
+        cv2.imwrite(filename,image)
+        send()
+    k = cv2.waitKey(200)
+    if k == 27:cap.release(); break;
