@@ -38,11 +38,6 @@ def jtalk(t):
     aplay = ['aplay','-q','open_jtalk.wav']
     wr = subprocess.Popen(aplay)
 
-def say_datetime(isMorning,news):
-    d = datetime.now()
-    text = '%s月%s日、%s時%s分、' % (d.month, d.day, d.hour, d.minute)
-    say_weather(isMorning,text,news)
-
 def say_news(index_number):
     text = descs[index_number].encode('utf_8');
     jtalk(text)
@@ -55,6 +50,7 @@ def say_who():
     text = 'あなたは誰ですか？'
     jtalk(text)
 
+
 def say_hi(user):
     text = user['name']+'さんですね？！こんにちは！！今日のニュースをお届けします。'
     text += descs[user['topic_number']].encode('utf_8')
@@ -65,7 +61,12 @@ def say_hi(user):
     return text
     #jtalk(text)
 
-def say_weather(isMorning,  text,news):
+def say_datetime(isMorning):
+    d = datetime.now()
+    text = '%s月%s日、%s時%s分、' % (d.month, d.day, d.hour, d.minute)
+    say_weather(isMorning,text,news)
+
+def say_weather(isMorning,text):
     if(isMorning):
         if(weather_data['query']['results']['channel']['item']['forecast'][0]['text'].find('Partly Cloudy') > -1):
             jtalk2(text+'今日の天気は晴れ時々曇りです。'+news)
@@ -112,8 +113,8 @@ def checkface(image_path):
             name=result['face'][0]['candidate'][0]['person_name']
             print 'You must be '+name+" . "
             print 'Hello!!' + name + "!!!"
-            text = say_hi(users[name]);
-            say_datetime(True,text)
+            #say_hi(users[name])
+            say_datetime(True)
             cv2.waitKey(30000)
         else:
             print 'who are you ?'
