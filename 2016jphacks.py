@@ -11,6 +11,7 @@ users = {
 }
 
 def jtalk2(t):
+    print "talk 2!!"
     open_jtalk=['open_jtalk']
     mech=['-x','/var/lib/mecab/dic/open-jtalk/naist-jdic']
     htsvoice=['-m','/usr/share/hts-voice/mei/mei_normal.htsvoice']
@@ -25,6 +26,7 @@ def jtalk2(t):
     wr = subprocess.Popen(aplay)
     
 def jtalk(t):
+    print "talk !!"
     open_jtalk=['open_jtalk']
     mech=['-x','/var/lib/mecab/dic/open-jtalk/naist-jdic']
     htsvoice=['-m','/usr/share/hts-voice/mei/mei_normal.htsvoice']
@@ -58,13 +60,14 @@ def say_hi(user):
         text += 'また、'+user['address']+'に遅れが出ています。早めに家を出ましょう。以上です。'
     else:
         text += '以上です。'
-    return text
-    #jtalk(text)
+    jtalk(text)
+    print 'say hi end'
 
 def say_datetime(isMorning):
     d = datetime.now()
     text = '%s月%s日、%s時%s分、' % (d.month, d.day, d.hour, d.minute)
     say_weather(isMorning,text)
+    print 'say datetime end'
 
 def say_weather(isMorning,text):
     if(isMorning):
@@ -93,6 +96,7 @@ def say_weather(isMorning,text):
             jtalk2(text+'明日は雨が少し降ります。傘を持って行きましょう！'+news)
         if(weather_data['query']['results']['channel']['item']['forecast'][1]['text'].find('Hearay rain') > -1):
             jtalk2(text+'明日はたくさん雨が降ります。傘を持って行きましょう！気をつけて行ってらっしゃいませ。'+news)
+    print 'say weather end'
 
 def checkface(image_path):  
     url = "http://apius.faceplusplus.com/recognition/identify"
@@ -113,7 +117,7 @@ def checkface(image_path):
             name=result['face'][0]['candidate'][0]['person_name']
             print 'You must be '+name+" . "
             print 'Hello!!' + name + "!!!"
-            #say_hi(users[name])
+            say_hi(users[name])
             say_datetime(True)
             cv2.waitKey(30000)
         else:
@@ -162,7 +166,7 @@ def judge(word):
 
 #weather
 baseurl = "https://query.yahooapis.com/v1/public/yql?"
-yql_query = 'select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="sendai")'
+yql_query = 'select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="tokyo")'
 yql_url = baseurl + urllib.urlencode({'q':yql_query}) + "&format=json"
 result = urllib2.urlopen(yql_url.decode('UTF_8')).read()
 weather_data = json.loads(result)
