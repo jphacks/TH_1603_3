@@ -6,7 +6,8 @@ from goolabs import GoolabsAPI
 users = {
     'yano':{'name':'矢野','address':'函館本線','topic_number':5},
     'kudo':{'name':'工藤','address':'大阪線','topic_number':8},
-    'nagai':{'name':'永井','address':'山田線','topic_number':4}
+    'nagai':{'name':'永井','address':'山田線','topic_number':4},
+    'hyodo':{'name':'兵藤','address':'山手線','topic_number':5}
 }
 
 def jtalk2(t):
