@@ -54,10 +54,11 @@ def say_who():
 
 
 def say_hi(user):
-    text = user['name']+'さんですね？！こんにちは！！今日のニュースをお届けします。'
-    text += descs[random.randint(1,30)].encode('utf_8')
+    text = user['name']+'さんですね？！こんにちは！！'
     if(requests.get('https://rti-giken.jp/fhc/api/train_tetsudo/delay.json').text.find(user['address'].decode('utf-8')) > -1):
-        text += 'また、'+user['address']+'に遅れが出ています。早めに家を出ましょう。'
+        text += user['address']+'に遅れが出ています。早めに家を出ましょう。'
+    else:
+        text += '電車の遅延はありません。'
     if hige_nobi :
         text += 'そういえば、ヒゲが伸びましたね、剃らなくていいんですか？　以上です。'
     else:
@@ -120,7 +121,7 @@ def checkface(image_path):
             print 'You must be '+name+" . "
             print 'Hello!!' + name + "!!!"
             say_datetime(True,say_hi(users[name]))
-            cv2.waitKey(30000)
+            cv2.waitKey(20000)
         else:
             print 'who are you ?'
             say_who()
